@@ -41,7 +41,8 @@ app.get('/api/users/:id', (req,res) => {
 // post request
 app.post('/api/users/', (req,res) => {
    const body = req.body;
-   users.push({id: users.length + 1, ...body})
+    users.push({id: users.length + 1, ...body});
+  
    fs.writeFile('./MOCK_DATA.json', JSON.stringify(users), (err)=>{
     if(err)
     {
@@ -72,7 +73,23 @@ app.patch('/api/users/:id', (req,res) => {
 
 // delete
 app.delete('/api/users/:id', (req,res) => {
-    res.send("Delete")
+    const id = req.params.id;
+    const userIndex = users.findIndex((user) => (user.id == id));
+    if(userIndex == -1){
+    res.json({"Status": "Failed", "message": "User not found"});
+   }
+
+   users.splice(userIndex,1);
+
+   fs.writeFile('./MOCK_DATA.json', JSON.stringify(users), (err)=>{
+    if(err)
+    {
+        return res.json({ error: 'Failed to delete user' });
+    }
+    res.json({"message": `User with id ${id} Deleted`}, users[userIndex]);
+   });
+
+
 })
 
 
