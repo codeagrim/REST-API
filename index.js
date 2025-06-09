@@ -1,8 +1,13 @@
 const express = require('express');
 const users = require('./MOCK_DATA.json');
+const fs = require('fs');
+const { json } = require('stream/consumers');
 const app = express();
 const PORT = 3000;
 
+
+// middleware
+app.use(express.urlencoded({ extended: false}));
 
 //Hybrid Server 
 
@@ -26,7 +31,6 @@ app.get('/users', (req,res) => {
 });
 
 // get user by id - params 
-
 app.get('/api/users/:id', (req,res) => {
     const id = parseInt(req.params.id)
     const user = users.find((user) => (user.id === id))
@@ -35,20 +39,40 @@ app.get('/api/users/:id', (req,res) => {
 
 
 // post request
+app.post('/api/users/', (req,res) => {
+   const body = req.body;
+   users.push({id: users.length + 1, ...body})
+   fs.writeFile('./MOCK_DATA.json', JSON.stringify(users), (err)=>{
+    if(err)
+    {
+        return res.json({ error: 'Failed to save user' });
+    }
+    res.json({'status': "User Created"});
+   });
+});
 
-app.post('/api/users/:id', (req,res) => {
-   })
-
-
-// patch
-
+// patch we are editing user
 app.patch('/api/users/:id', (req,res) => {
-   })
+   const id = parseInt(req.params.id)
+   const userIndex = users.findIndex((user) => (user.id == id))
+   if(userIndex == -1){
+    res.json({"Status": "Failed", "message": "User not found"});
+   }
+   
+    const body = req.body;
+    users[userIndex] = {id: id,...body};
+    fs.writeFile('./MOCK_DATA.json', JSON.stringify(users), (err)=>{
+    if(err)
+    {
+        return res.json({ error: 'Failed to save user' });
+    }
+    res.json(users[userIndex]);
+   });
+   });
 
 // delete
-
 app.delete('/api/users/:id', (req,res) => {
-    res.json(user)
+    res.send("Delete")
 })
 
 
