@@ -34,13 +34,21 @@ app.get('/users', (req,res) => {
 app.get('/api/users/:id', (req,res) => {
     const id = parseInt(req.params.id)
     const user = users.find((user) => (user.id === id))
-    res.json(user)
+    if(!user)
+    {
+        res.status(404).json({"message": "User not Found"})
+    }
+    res.status(200).json(user)
 })
 
 
 // post request
 app.post('/api/users/', (req,res) => {
    const body = req.body;
+   if(!body || !body.first_name || !body.last_name || !body.email || !body.gender || !body.phone_number)
+   {
+    res.status(400).json( {message: "Required all Fields"})
+   }
     users.push({id: users.length + 1, ...body});
   
    fs.writeFile('./MOCK_DATA.json', JSON.stringify(users), (err)=>{
@@ -48,7 +56,7 @@ app.post('/api/users/', (req,res) => {
     {
         return res.json({ error: 'Failed to save user' });
     }
-    res.json({'status': "User Created"});
+    res.status(201).json({'status': "User Created"});
    });
 });
 
