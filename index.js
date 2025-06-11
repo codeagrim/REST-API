@@ -46,9 +46,9 @@ app.get('/api/users/:id', (req,res) => {
 app.post('/api/users/', (req,res) => {
    const body = req.body;
    if(!body || !body.first_name || !body.last_name || !body.email || !body.gender || !body.phone_number)
+    res.status(400).json( {message: "Required all Fields"});
+   else
    {
-    res.status(400).json( {message: "Required all Fields"})
-   }
     users.push({id: users.length + 1, ...body});
   
    fs.writeFile('./MOCK_DATA.json', JSON.stringify(users), (err)=>{
@@ -58,6 +58,7 @@ app.post('/api/users/', (req,res) => {
     }
     res.status(201).json({'status': "User Created"});
    });
+}
 });
 
 // patch we are editing user
